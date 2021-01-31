@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:background="@color/quantum_grey200"
+    tools:context=".route.collect.CollectRouteInfoActivity">
 
     <TextView
         android:id="@+id/startingLocation_label"
@@ -36,5 +37,27 @@
         android:text="@string/button_generateRoute"
         android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@id/routeLength_editText"/>
+
+    <ImageView
+        android:id="@+id/error_icon"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:src="@drawable/error_icon"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <TextView
+        android:id="@+id/error_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:textColor="#BDBDBD"
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@id/error_icon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

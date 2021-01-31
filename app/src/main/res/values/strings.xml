@@ -4,6 +4,8 @@
     <string name="label_startingLocation">Choose a starting location</string>
     <string name="hint_routeLength">Enter the length of the route (miles)</string>
     <string name="button_generateRoute">Generate Route</string>
-    <string name="toast_invalidDistance">Please enter a valid distance less than 200</string>
+    <string name="label_distanceError">Invalid distance entered. Please try again.</string>
+    <string name="label_generalError">Something went wrong. Please try again.</string>
+    <string name="label_generatingRoute">Generating a route</string>
 
 </resources>
