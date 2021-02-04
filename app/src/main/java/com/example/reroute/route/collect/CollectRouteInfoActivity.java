@@ -75,7 +75,7 @@ public class CollectRouteInfoActivity extends AppCompatActivity {
         }
 
         // Create a new Places client instance.
-        final PlacesClient placesClient = Places.createClient(this);
+        PlacesClient placesClient = Places.createClient(this);
 
         // Initialize the AutocompleteSupportFragment.
         AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
@@ -89,7 +89,7 @@ public class CollectRouteInfoActivity extends AppCompatActivity {
                     Log.i(TAG, "Place selected: " + place.getName());
 
                     //Use the Places client to get the latitude and longitude of the selected place
-                    List<Place.Field> placeFields = Arrays.asList(Place.Field.NAME, Place.Field.LAT_LNG);
+                    List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
                     FetchPlaceRequest request = FetchPlaceRequest.newInstance(place.getId(), placeFields);
                     placesClient.fetchPlace(request).addOnSuccessListener(response -> {
                         placeSelected = response.getPlace();
@@ -158,8 +158,8 @@ public class CollectRouteInfoActivity extends AppCompatActivity {
     private void initializeGoButton() {
         goButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, GenerateRouteActivity.class);
-            intent.putExtra(EXTRA_PLACE, placeSelected);
-            intent.putExtra(EXTRA_DISTANCE, routeDistance);
+/*            intent.putExtra(EXTRA_PLACE, placeSelected);
+            intent.putExtra(EXTRA_DISTANCE, routeDistance);*/
             startActivity(intent);
         });
     }
