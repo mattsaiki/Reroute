@@ -3,52 +3,75 @@ package com.example.reroute.route.generate;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-
-import androidx.appcompat.app.AppCompatActivity;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.example.reroute.R;
+import com.example.reroute.route.BaseActivity;
+import com.example.reroute.route.display.DisplayRouteActivity;
 import com.google.android.libraries.places.api.model.Place;
 
 /**
  * This activity builds the random route. It displays a progress bar and waits until the route has
  * been created.
  */
-public class GenerateRouteActivity extends AppCompatActivity implements RouteBuilderCallback {
+public class GenerateRouteActivity extends BaseActivity implements RouteBuilderCallback {
 
     private final static String TAG = "[PLACE]";
-    private final static String EXTRA_PLACE = "EXTRA_PLACE";
+    private final static String EXTRA_ORIGIN = "EXTRA_ORIGIN";
     private final static String EXTRA_DISTANCE = "EXTRA_DISTANCE";
+    private final static String EXTRA_WAYPOINT = "EXTRA_WAYPOINT";
+
+    private ProgressBar progressBar;
+    private TextView progressMessage;
+    private Place origin;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_generate);
+
+        ProgressBar progressBar = findViewById(R.id.progressBar);
+        TextView progressMessage = findViewById(R.id.progressText);
 
         Intent intent = getIntent();
-/*        Place placeSelected = intent.getParcelableExtra(EXTRA_PLACE);
+        origin = intent.getParcelableExtra(EXTRA_ORIGIN);
         int distance = intent.getIntExtra(EXTRA_DISTANCE, 0);
-        if (placeSelected != null && distance != 0) {
+        if (origin != null && distance != 0) {
             Log.i(TAG, "Received extras: Distance = " + distance +
-                    " Place = " + placeSelected.toString());
+                    " Place = " + origin.toString());
 
             RouteBuilder builder = RouteBuilder.getInstance();
-            builder.generateRoute(this.getApplicationContext(), this, placeSelected, distance);
+            builder.generateRoute(this.getApplicationContext(), this, origin, distance);
         } else {
-            //TODO: show error state
-            Log.i(TAG, "ERROR");
-        }*/
+            progressBar.setVisibility(View.GONE);
+            progressMessage.setVisibility(View.GONE);
+            setErrorState(getString(R.string.label_generalError));
+        }
 
-        RouteBuilder builder = RouteBuilder.getInstance();
-        builder.generateRoute(this.getApplicationContext(), this, null, 20);
+/*        RouteBuilder builder = RouteBuilder.getInstance();
+        builder.generateRoute(this.getApplicationContext(), this, null, 20);*/
     }
 
     @Override
-    public void onSuccess() {
-        Log.i(TAG, "Successfully generated a route");
+    protected int getLayoutResourceId() {
+        return R.layout.activity_generate;
+    }
+
+    @Override
+    public void onSuccess(Waypoint waypoint) {
+        Log.i(TAG, "Successfully found a waypoint for the route");
+        Intent intent = new Intent(this, DisplayRouteActivity.class);
+        intent.putExtra(EXTRA_ORIGIN, origin);
+        intent.putExtra(EXTRA_WAYPOINT, waypoint);
+        startActivity(intent);
     }
 
     @Override
     public void onError() {
+        progressBar.setVisibility(View.GONE);
+        progressMessage.setVisibility(View.GONE);
+        setErrorState(getString(R.string.label_generalError));
         Log.e(TAG, "Something went wrong while generating a route");
     }
 }

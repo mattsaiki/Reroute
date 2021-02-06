@@ -1,7 +1,6 @@
 package com.example.reroute.route.collect;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,10 +9,9 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.example.reroute.R;
+import com.example.reroute.route.BaseActivity;
 import com.example.reroute.route.generate.GenerateRouteActivity;
 import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.api.Places;
@@ -30,29 +28,22 @@ import java.util.List;
  * This activity is collects the information necessary to generate a random route.
  * After all of the information is collected, start the next activity
  */
-public class CollectRouteInfoActivity extends AppCompatActivity {
+public class CollectRouteInfoActivity extends BaseActivity {
 
     private final static String TAG = "[PLACE]";
-    private final static String EXTRA_PLACE = "EXTRA_PLACE";
+    private final static String EXTRA_ORIGIN = "EXTRA_ORIGIN";
     private final static String EXTRA_DISTANCE = "EXTRA_DISTANCE";
     private final static int MIN_DISTANCE = 0;
     private final static int MAX_DISTANCE = 200;
 
-    private enum ErrorState {
-        NONE,
-        INVALID_DISTANCE,
-        GENERAL_ERROR
-    }
-
     private EditText distanceEditText;
     private Button goButton;
     private int routeDistance;
-    private Place placeSelected;
+    private Place originSelected;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_collect);
 
         distanceEditText = findViewById(R.id.routeLength_editText);
         goButton = findViewById(R.id.go_button);
@@ -61,6 +52,11 @@ public class CollectRouteInfoActivity extends AppCompatActivity {
         initializeDistanceEditText();
         initializeGoButton();
         goButton.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    protected int getLayoutResourceId() {
+        return R.layout.activity_collect;
     }
 
     /**
@@ -92,17 +88,17 @@ public class CollectRouteInfoActivity extends AppCompatActivity {
                     List<Place.Field> placeFields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG);
                     FetchPlaceRequest request = FetchPlaceRequest.newInstance(place.getId(), placeFields);
                     placesClient.fetchPlace(request).addOnSuccessListener(response -> {
-                        placeSelected = response.getPlace();
-                        Log.i(TAG, "Full place details fetched: " + placeSelected.toString());
+                        originSelected = response.getPlace();
+                        Log.i(TAG, "Full place details fetched: " + originSelected.toString());
                     }).addOnFailureListener(exception -> {
-                        setErrorState(ErrorState.GENERAL_ERROR);
+                        setErrorState(getString(R.string.label_generalError));
                         Log.e(TAG, "Place not found: " + exception.getMessage());
                     });
                 }
 
                 @Override
                 public void onError(Status status) {
-                    setErrorState(ErrorState.GENERAL_ERROR);
+                    setErrorState(getString(R.string.label_generalError));
                     Log.i(TAG, "An error occurred selecting a Place: " + status);
                 }
             });
@@ -124,9 +120,9 @@ public class CollectRouteInfoActivity extends AppCompatActivity {
                 if (validDistance) {
                     //Show the Generate Route button when a valid distance is entered
                     goButton.setVisibility(View.VISIBLE);
-                    setErrorState(ErrorState.NONE);
+                    hideErrorState();
                 } else {
-                    setErrorState(ErrorState.INVALID_DISTANCE);
+                    setErrorState(getString(R.string.label_distanceError));
                 }
             }
             return donePressed;
@@ -158,37 +154,9 @@ public class CollectRouteInfoActivity extends AppCompatActivity {
     private void initializeGoButton() {
         goButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, GenerateRouteActivity.class);
-/*            intent.putExtra(EXTRA_PLACE, placeSelected);
-            intent.putExtra(EXTRA_DISTANCE, routeDistance);*/
+            intent.putExtra(EXTRA_ORIGIN, originSelected);
+            intent.putExtra(EXTRA_DISTANCE, routeDistance);
             startActivity(intent);
         });
-    }
-
-
-
-    /**
-     * Sets the error icon and message according to the error state
-     * @param error Current error state, NONE if no error
-     */
-    private void setErrorState(ErrorState error) {
-        ImageView errorIcon = findViewById(R.id.error_icon);
-        TextView errorText = findViewById(R.id.error_message);
-
-        switch (error) {
-            case NONE:
-                errorIcon.setVisibility(View.GONE);
-                errorText.setVisibility(View.GONE);
-                break;
-            case INVALID_DISTANCE:
-                errorIcon.setVisibility(View.VISIBLE);
-                errorText.setVisibility(View.VISIBLE);
-                errorText.setText(R.string.label_distanceError);
-                break;
-            case GENERAL_ERROR:
-                errorIcon.setVisibility(View.VISIBLE);
-                errorText.setVisibility(View.VISIBLE);
-                errorText.setText(R.string.label_generalError);
-                break;
-        }
     }
 }

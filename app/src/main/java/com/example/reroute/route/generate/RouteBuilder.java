@@ -60,27 +60,34 @@ class RouteBuilder {
     private void calculateDistances(JSONObject addressResponse, Context context, Place origin) {
         //Parse the addresses and Place ID from the Nearby Search response
         ArrayList<Waypoint> waypoints = parseSearchResponse(addressResponse);
-        for (int i = 0; i < waypoints.size(); i++) {
-            Log.i(TAG, "PLACE " + i + ": ID = " + waypoints.get(i).getId() + " address = " + waypoints.get(i).getAddress());
-        }
 
         //Iterate through the various addresses and calculate the distance from the starting point
-        ArrayList<Integer> distances = new ArrayList<>();
+        ArrayList<Double> distances = new ArrayList<>();
         //for (int i = 0; i < addresses.size(); i++) {
         for (int i = 0; i < 1; i++) {
             int index = i;
             //Send requests to calculate the distance
             sendRequest(context, buildDistanceMatrixRequest(context, origin, waypoints.get(i)), response -> {
                 Log.i(TAG, "Distance Maxtrix Response: " + response.toString());
-                //Log.i(TAG, "Successfully received response from Distance Matrix API");
-                //distances.add(index, parseDistance(response));
-                //TODO: check if the distance is close enough
+                double distanceToWaypoint = parseDistanceResponse(response);
+                if (checkWaypoint(distanceToWaypoint)) {
+                    //TODO: finish this
 
+                    routeBuilderCallback.onSuccess(waypoints.get(index));
+                } else {
+                    //Save the distance in case no good matches
+                    distances.add(index, distanceToWaypoint);
+                    //TODO: finish this
+                }
             }, error -> {
                 routeBuilderCallback.onError();
                 Log.e(TAG, "Error making Distance Matrix API request " + error.getMessage());
             });
         }
+    }
+
+    private void generateDirections(Context context, Place origin, Waypoint destination) {
+
     }
 
     /**
@@ -100,30 +107,11 @@ class RouteBuilder {
     }
 
     /**
-     * Parses the JSON response from the Places Search request
-     * @param object Response from the Places Search API
-     * @return ArrayList containing the Places returned
-     */
-    private ArrayList<Waypoint> parseSearchResponse(JSONObject object) {
-        ArrayList<Waypoint> waypointList = new ArrayList<>();
-        try {
-            JSONArray array = object.getJSONArray("results");
-            for (int i = 0; i < array.length(); i++) {
-                JSONObject obj = array.getJSONObject(i);
-                waypointList.add(new Waypoint(obj.getString("place_id"), obj.getString("vicinity")));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return waypointList;
-    }
-
-    /**
-     * Builds the Places API Search request which is an HTTP URL
-     * @param context
-     * @param place
-     * @param distance
-     * @return String representing the request
+     * Builds the Places Search API request
+     * @param context Application context
+     * @param place Route starting point
+     * @param distance Desired route length
+     * @return String representing the request in the form of an HTTP URL
      */
     private String buildPlacesSearchRequest(Context context, Place place, int distance) {
         StringBuilder builder = new StringBuilder();
@@ -150,22 +138,28 @@ class RouteBuilder {
         return "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=21.424723,-157.7467421&radius=50000&key=AIzaSyD3HGrj_jZmd_OYlOaqfNiG0JyC61Gs9Fs";
     }
 
+    /**
+     * Builds the Distance Matrix API request
+     * @param context Application context
+     * @param origin Route starting point
+     * @param destination Potential destination for the route
+     * @return String representing the request in the form of an HTTP URL
+     */
     private String buildDistanceMatrixRequest(Context context, Place origin, Waypoint destination) {
         StringBuilder builder = new StringBuilder();
 
-        //if (origin.getId() != null) {
+/*        if (origin.getId() != null) {
             builder.append("https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=place_id:");
-            //builder.append(origin.getId());
-            //Place ID for 17 Aikahi Loop
-            builder.append("ChIJU7o1XzgVAHwRkAyT6IkAvFk");
+            builder.append(origin.getId());
             builder.append("&destinations=place_id:");
             builder.append(destination.getId());
             builder.append("&mode=");
             builder.append("bicycling");
             builder.append("&key=");
             builder.append(context.getString(R.string.places_api_key));
-        //}
-        return builder.toString();
+        }
+        return builder.toString();*/
+        return "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=place_id:ChIJU7o1XzgVAHwRkAyT6IkAvFk&destinations=place_id:ChIJTUbDjDsYAHwRbJen81_1KEs&mode=bicycling&key=AIzaSyD3HGrj_jZmd_OYlOaqfNiG0JyC61Gs9Fs";
     }
 
     /**
@@ -179,5 +173,67 @@ class RouteBuilder {
         //Since the max radius is 31 miles, cap the distance at 60 miles
         int cappedDistance = distance % 60;
         return (cappedDistance/2) * 1600;
+    }
+
+    /**
+     * Parses the JSON response from the Places Search request
+     * @param object Response from the Places Search API
+     * @return ArrayList containing the Places returned
+     */
+    private ArrayList<Waypoint> parseSearchResponse(JSONObject object) {
+        ArrayList<Waypoint> waypointList = new ArrayList<>();
+        try {
+            JSONArray array = object.getJSONArray("results");
+            for (int i = 0; i < array.length(); i++) {
+                JSONObject obj = array.getJSONObject(i);
+                waypointList.add(new Waypoint(obj.getString("place_id"), obj.getString("vicinity")));
+                Log.d(TAG, "Waypoint parsed " + i + ": id = " + obj.getString("place_id") +
+                        ", distance = " + obj.getString("vicinity"));
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return waypointList;
+    }
+
+    /**
+     * Parses the JSON response from the Distance Matrix request
+     * @param object Response from the Distance Matrix API
+     * @return Double containing the distance from origin to destination by bike
+     */
+    private double parseDistanceResponse(JSONObject object) {
+        double distance = 0;
+        try {
+            JSONArray rowsArray = object.getJSONArray("rows");
+            JSONObject rowObject = rowsArray.getJSONObject(0);
+            JSONArray elementArray = rowObject.getJSONArray("elements");
+            JSONObject elementObject = elementArray.getJSONObject(0);
+            JSONObject distanceObject = elementObject.getJSONObject("distance");
+            //Distance comes in the form "XX.XX mi", need to remove after the whitespace
+            String distanceWithUnits = distanceObject.getString("text");
+            int spacePosition = distanceWithUnits.indexOf(" ");
+            String distanceWithoutUnits = distanceWithUnits.substring(0, spacePosition);
+            distance = Double.parseDouble(distanceWithoutUnits);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        Log.d(TAG, "Distance parsed = " + distance);
+
+        return distance;
+    }
+
+    /**
+     * Checks if the distance to the waypoint is close enough to the desired length
+     * @param distance Distance to the waypoint
+     * @return True if close enough, false otherwise
+     */
+    private boolean checkWaypoint(double distance) {
+        boolean closeEnough = true;
+        if (distance + MAX_DISTANCE_DIFFERENCE > routeDistanceSelected ||
+            distance - MAX_DISTANCE_DIFFERENCE < routeDistanceSelected) {
+            closeEnough = false;
+        }
+        //return closeEnough;
+        return true;
     }
 }
