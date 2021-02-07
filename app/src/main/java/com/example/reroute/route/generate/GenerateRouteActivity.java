@@ -21,7 +21,7 @@ public class GenerateRouteActivity extends BaseActivity implements RouteBuilderC
     private final static String TAG = "[PLACE]";
     private final static String EXTRA_ORIGIN = "EXTRA_ORIGIN";
     private final static String EXTRA_DISTANCE = "EXTRA_DISTANCE";
-    private final static String EXTRA_WAYPOINT = "EXTRA_WAYPOINT";
+    private final static String EXTRA_POLYLINE = "EXTRA_POLYLINE";
 
     private ProgressBar progressBar;
     private TextView progressMessage;
@@ -34,7 +34,7 @@ public class GenerateRouteActivity extends BaseActivity implements RouteBuilderC
         ProgressBar progressBar = findViewById(R.id.progressBar);
         TextView progressMessage = findViewById(R.id.progressText);
 
-        Intent intent = getIntent();
+/*        Intent intent = getIntent();
         origin = intent.getParcelableExtra(EXTRA_ORIGIN);
         int distance = intent.getIntExtra(EXTRA_DISTANCE, 0);
         if (origin != null && distance != 0) {
@@ -47,10 +47,10 @@ public class GenerateRouteActivity extends BaseActivity implements RouteBuilderC
             progressBar.setVisibility(View.GONE);
             progressMessage.setVisibility(View.GONE);
             setErrorState(getString(R.string.label_generalError));
-        }
+        }*/
 
-/*        RouteBuilder builder = RouteBuilder.getInstance();
-        builder.generateRoute(this.getApplicationContext(), this, null, 20);*/
+        RouteBuilder builder = RouteBuilder.getInstance();
+        builder.generateRoute(this.getApplicationContext(), this, null, 20);
     }
 
     @Override
@@ -59,11 +59,11 @@ public class GenerateRouteActivity extends BaseActivity implements RouteBuilderC
     }
 
     @Override
-    public void onSuccess(Waypoint waypoint) {
-        Log.i(TAG, "Successfully found a waypoint for the route");
+    public void onSuccess(String polyline) {
+        Log.i(TAG, "Successfully found a route");
         Intent intent = new Intent(this, DisplayRouteActivity.class);
-        intent.putExtra(EXTRA_ORIGIN, origin);
-        intent.putExtra(EXTRA_WAYPOINT, waypoint);
+        //intent.putExtra(EXTRA_ORIGIN, origin);
+        intent.putExtra(EXTRA_POLYLINE, polyline);
         startActivity(intent);
     }
 

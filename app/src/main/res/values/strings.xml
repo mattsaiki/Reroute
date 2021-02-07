@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Reroute</string>
-    <string name="places_api_key">AIzaSyD3HGrj_jZmd_OYlOaqfNiG0JyC61Gs9Fs</string>
+    <string name="google_maps_api_key">AIzaSyD3HGrj_jZmd_OYlOaqfNiG0JyC61Gs9Fs</string>
     <string name="label_startingLocation">Choose a starting location</string>
     <string name="hint_routeLength">Enter the length of the route (miles)</string>
     <string name="button_generateRoute">Generate Route</string>

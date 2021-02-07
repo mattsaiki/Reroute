@@ -47,14 +47,16 @@ class RouteBuilder {
         this.routeBuilderCallback = callback;
         routeDistanceSelected = distance;
 
-        //Create and send the request for places within a certain radius using Google Maps Places Search
+        routeBuilderCallback.onSuccess("}nwaCf{xa]~BgB~H~FbFnDfMaCtOwChBnG~OrKvF_JvVoPrYmNbi@yW|C{B~DuNxBkH~CyDjEfEjBxBzA{CxEp@`Ch@dBPvLeDvExCbDX@`Cp@~FpAbEbL|L|JlD|i@gHpRcIbGoDlHlOxG{A`MkHrRuLv^c[pI{GxFUzJSzPi[pAqPZaDbG`G`HIhGeC~GmSr]w{A|HmKxPsRLaDpH_MhKkZrMi_@`Wat@hLmZbZm\\lEsNByI|E{JbNsCxL_H`AeJpByDnVaBhOeAxGnNjFhLxGxFnFb@bS{DrH|@nKzPSbBsBhAaAbAqA|DvB|W}GnJmKxA}@B{BBDdCB|@FdAv@rEbI~Z|EbS_@|CYxDz@r@t@fAdFxLjJrQkA|G{HtHrEvEvKnGx@jD}@lBYzABpFp@dI`@|CdFbHd@`FnCzOdG|QtDdT~@jGrAz@kLfRcBnDgBzNvClUdPvb@zDf[fH`o@~I~j@xFzj@`Fxk@MpUaG~q@uDxl@yApb@aB|Rwc@bgAsThi@s@|LiJdOx@jGjAzJkPbZeKlI}BpI_FhRfGlA~@rA[nAkAvEoBbIkOnl@{XzgAgCtKUMcAuBoBhBS`AoDhJqBfA{@|A~ArBoBhBQD[M_@DAzBlCjB|CkErHsPfFsVd]}sAvKsb@`CsJlBqBlK`DzR|Fn@kApA{C|Ak@vBrAxF{GjBaC~A{BdB_ChEoEh@cAlAiMoBkOaCmCk@gCvYs]`F_GG}FuCqQ{CY_QmOgAk@cI{DaA}A^}@`AaCz@wBvGcPvRue@jJwTZeOnDql@rE{{@`E_c@kCub@yH}q@uLcz@iC}]mGi][{GgGwRgHwQ}CcTtBoR~D_HpB_A~EiJyDyD_AuNiKe]uD}VeFcHa@}C[sS|@mBy@kDwKoGsEwEzHuHjA}GkJsQeFyLu@gA{@s@XyDXkADqA}EcS{Jsa@KcCEeCzBC|@C~Da@lEw@fE}Cz@oP}A_MpA}D`AcArBiARcBsFuL{CeCsH}@cSzDoFc@yGyFeOy[ca@dC}FfBi@jHuFrIkP|CwHzFoB~Ja@nLaIvKcXv\\ii@d|AmKxZoEjMaKlM_m@hh@_c@lm@iInbA{AhP}IhOcG|HmD?{LGkZtXqu@|d@eHeM}Bc@cCxAwFbDqGnCil@vIiKwBmMiMi@kAgHlAgKnE}GlCeCsI{EwC_AUiCm@d@uBbAcF_As@yF_GiDtA{@lAaCtIaCnIwA|Cye@vUml@zYyLzK_DhFeI{EyFqEk@_AsC{B}MfCuCd@mFz@kFwDmIeF_CfB");
+
+/*        //Create and send the request for places within a certain radius using Google Maps Places Search
         sendRequest(context, buildPlacesSearchRequest(context, origin, distance), response -> {
             Log.i(TAG, "Successfully received response from Places Search API");
             calculateDistances(response, context, origin);
         }, error -> {
             Log.e(TAG, "Error making Places Search API request " + error.getMessage());
             routeBuilderCallback.onError();
-        });
+        });*/
     }
 
     private void calculateDistances(JSONObject addressResponse, Context context, Place origin) {
@@ -87,6 +89,7 @@ class RouteBuilder {
     private void getDirections(Context context, Place origin, Waypoint waypoint) {
         sendRequest(context, buildDirectionsRequest(context, origin, waypoint), response -> {
             String overviewPolyline = parseDirectionsResponse(response);
+            Log.i(TAG, "Polyline = " + overviewPolyline);
             routeBuilderCallback.onSuccess(overviewPolyline);
         }, error -> {
             Log.e(TAG, "Error making Directions API request " + error.getMessage());

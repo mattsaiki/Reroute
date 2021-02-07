@@ -64,7 +64,7 @@ public class CollectRouteInfoActivity extends BaseActivity {
      * Initialize Autocomplete for searching for the starting location
      */
     private void initializePlaces() {
-        String placesApiKey = getString(R.string.places_api_key);
+        String placesApiKey = getString(R.string.google_maps_api_key);
         //Initialize Places
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), placesApiKey);
@@ -154,8 +154,8 @@ public class CollectRouteInfoActivity extends BaseActivity {
     private void initializeGoButton() {
         goButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, GenerateRouteActivity.class);
-            intent.putExtra(EXTRA_ORIGIN, originSelected);
-            intent.putExtra(EXTRA_DISTANCE, routeDistance);
+/*            intent.putExtra(EXTRA_ORIGIN, originSelected);
+            intent.putExtra(EXTRA_DISTANCE, routeDistance);*/
             startActivity(intent);
         });
     }
