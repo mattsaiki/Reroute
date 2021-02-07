@@ -71,23 +71,27 @@ class RouteBuilder {
                 Log.i(TAG, "Distance Maxtrix Response: " + response.toString());
                 double distanceToWaypoint = parseDistanceResponse(response);
                 if (checkWaypoint(distanceToWaypoint)) {
-                    //TODO: finish this
-
-                    routeBuilderCallback.onSuccess(waypoints.get(index));
+                    getDirections(context, origin, waypoints.get(index));
                 } else {
                     //Save the distance in case no good matches
                     distances.add(index, distanceToWaypoint);
                     //TODO: finish this
                 }
             }, error -> {
-                routeBuilderCallback.onError();
                 Log.e(TAG, "Error making Distance Matrix API request " + error.getMessage());
+                routeBuilderCallback.onError();
             });
         }
     }
 
-    private void generateDirections(Context context, Place origin, Waypoint destination) {
-
+    private void getDirections(Context context, Place origin, Waypoint waypoint) {
+        sendRequest(context, buildDirectionsRequest(context, origin, waypoint), response -> {
+            String overviewPolyline = parseDirectionsResponse(response);
+            routeBuilderCallback.onSuccess(overviewPolyline);
+        }, error -> {
+            Log.e(TAG, "Error making Directions API request " + error.getMessage());
+            routeBuilderCallback.onError();
+        });
     }
 
     /**
@@ -125,7 +129,7 @@ class RouteBuilder {
             builder.append("&radius=");
             builder.append(calculateRadius(distance));
             builder.append("&key=");
-            builder.append(context.getString(R.string.places_api_key));
+            builder.append(context.getString(R.string.google_maps_api_key));
         } else if (place.getName() == null) {
             Log.i(TAG, "Name is null");
         } else if (place.getLatLng() == null) {
@@ -156,10 +160,30 @@ class RouteBuilder {
             builder.append("&mode=");
             builder.append("bicycling");
             builder.append("&key=");
-            builder.append(context.getString(R.string.places_api_key));
+            builder.append(context.getString(R.string.google_maps_api_key));
         }
         return builder.toString();*/
         return "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=place_id:ChIJU7o1XzgVAHwRkAyT6IkAvFk&destinations=place_id:ChIJTUbDjDsYAHwRbJen81_1KEs&mode=bicycling&key=AIzaSyD3HGrj_jZmd_OYlOaqfNiG0JyC61Gs9Fs";
+    }
+
+    private String buildDirectionsRequest(Context context, Place origin, Waypoint waypoint) {
+        StringBuilder builder = new StringBuilder();
+
+        if (origin.getId() != null) {
+            builder.append("https://maps.googleapis.com/maps/api/directions/json?origin=place_id:");
+            builder.append(origin.getId());
+            builder.append("&destination=place_id:");
+            builder.append(origin.getId());
+            builder.append("&waypoints=place_id:");
+            builder.append(waypoint.getId());
+            builder.append("&mode=");
+            builder.append("bicycling");
+            builder.append("&key=");
+            builder.append(context.getString(R.string.google_maps_api_key));
+        }
+        Log.i(TAG, "Directions request: " + builder.toString());
+
+        return builder.toString();
     }
 
     /**
@@ -220,6 +244,25 @@ class RouteBuilder {
         Log.d(TAG, "Distance parsed = " + distance);
 
         return distance;
+    }
+
+    /**
+     * Parses the JSON response from the Directions request
+     * @param object Response from the Directions API
+     * @return Encoded polyline that represents the route
+     */
+    private String parseDirectionsResponse(JSONObject object) {
+        StringBuilder builder = new StringBuilder();
+        try {
+            JSONArray routes = object.getJSONArray("routes");
+            JSONObject route = routes.getJSONObject(0);
+            JSONObject overview = route.getJSONObject("overview_polyline");
+            builder.append(overview.getString("points"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        return builder.toString();
     }
 
     /**
