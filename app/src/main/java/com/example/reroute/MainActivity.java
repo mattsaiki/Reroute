@@ -1,4 +1,4 @@
-package com.example.reroute.route.collect;
+package com.example.reroute;
 
 import androidx.annotation.NonNull;
 
@@ -10,9 +10,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.example.reroute.R;
-import com.example.reroute.route.BaseActivity;
-import com.example.reroute.route.generate.GenerateRouteActivity;
 import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -28,7 +25,7 @@ import java.util.List;
  * This activity is collects the information necessary to generate a random route.
  * After all of the information is collected, start the next activity
  */
-public class CollectRouteInfoActivity extends BaseActivity {
+public class MainActivity extends BaseActivity {
 
     private final static String TAG = "[PLACE]";
     private final static String EXTRA_ORIGIN = "EXTRA_ORIGIN";
@@ -154,8 +151,8 @@ public class CollectRouteInfoActivity extends BaseActivity {
     private void initializeGoButton() {
         goButton.setOnClickListener(v -> {
             Intent intent = new Intent(this, GenerateRouteActivity.class);
-/*            intent.putExtra(EXTRA_ORIGIN, originSelected);
-            intent.putExtra(EXTRA_DISTANCE, routeDistance);*/
+            intent.putExtra(EXTRA_ORIGIN, originSelected);
+            intent.putExtra(EXTRA_DISTANCE, routeDistance);
             startActivity(intent);
         });
     }

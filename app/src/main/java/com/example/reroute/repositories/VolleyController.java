@@ -1,4 +1,4 @@
-package com.example.reroute.route.generate;
+package com.example.reroute.repositories;
 
 import android.content.Context;
 
@@ -21,7 +21,7 @@ public class VolleyController {
     /**
      * Setup a single instance of this class
      */
-    static VolleyController getInstance(Context context) {
+    public static VolleyController getInstance(Context context) {
         if (instance == null) {
             instance = new VolleyController(context);
         }
@@ -30,7 +30,7 @@ public class VolleyController {
 
     private RequestQueue getRequestQueue(Context context) {
         if (requestQueue == null) {
-            requestQueue = Volley.newRequestQueue(context.getApplicationContext());
+            requestQueue = Volley.newRequestQueue(context);
         }
         return requestQueue;
     }

@@ -7,6 +7,8 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.example.reroute.R;
+import com.example.reroute.models.Waypoint;
+import com.example.reroute.repositories.VolleyController;
 import com.google.android.libraries.places.api.model.Place;
 
 import org.json.JSONArray;
@@ -18,7 +20,7 @@ import java.util.ArrayList;
 /**
  * This class is responsible for building the random route by using the Google Maps Places Search API.
  */
-class RouteBuilder {
+public class RouteBuilder {
 
     private final static String TAG = "[PLACE]";
     private final static int MAX_DISTANCE_DIFFERENCE = 3;
@@ -34,14 +36,14 @@ class RouteBuilder {
     /**
      * Setup a single instance of this class
      */
-    static RouteBuilder getInstance() {
+    public static RouteBuilder getInstance() {
         if (instance == null) {
             instance = new RouteBuilder();
         }
         return instance;
     }
 
-    void generateRoute(Context context, RouteBuilderCallback callback, Place origin, int distance) {
+    public void generateRoute(Context context, RouteBuilderCallback callback, Place origin, int distance) {
         Log.i(TAG, "RouteBuilder called with DEBUG parameters, ORIGIN is null and distance is 20!!");
         volleyController = VolleyController.getInstance(context);
         this.routeBuilderCallback = callback;

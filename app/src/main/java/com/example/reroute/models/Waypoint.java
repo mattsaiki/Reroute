@@ -1,4 +1,4 @@
-package com.example.reroute.route.generate;
+package com.example.reroute.models;
 
 /**
  * This class represents waypoints in a route. It holds the Place ID and address of the waypoint
@@ -7,10 +7,17 @@ public class Waypoint {
 
     private String id;
     private String address;
+    private double distance;
 
-    Waypoint(String id, String address) {
+    public Waypoint(String id, String address) {
         this.id = id;
         this.address = address;
+    }
+
+    public Waypoint(String id, String address, double distance) {
+        this.id = id;
+        this.address = address;
+        this.distance = distance;
     }
 
     public String getId() {
@@ -19,5 +26,9 @@ public class Waypoint {
 
     public String getAddress() {
         return address;
+    }
+
+    public double getDistance() {
+        return distance;
     }
 }

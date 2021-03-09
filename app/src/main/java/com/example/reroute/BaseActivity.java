@@ -1,4 +1,4 @@
-package com.example.reroute.route;
+package com.example.reroute;
 
 import android.os.Bundle;
 import android.view.View;

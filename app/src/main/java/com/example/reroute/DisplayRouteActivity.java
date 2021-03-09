@@ -1,19 +1,13 @@
-package com.example.reroute.route.display;
+package com.example.reroute;
 
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.example.reroute.R;
-import com.example.reroute.route.BaseActivity;
-import com.example.reroute.route.generate.Waypoint;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.libraries.places.api.model.Place;
@@ -52,7 +46,6 @@ public class DisplayRouteActivity extends BaseActivity implements OnMapReadyCall
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        //21.424723,-157.7467421)
         LatLng originLocation = new LatLng(21.424723,-157.7467421);
         googleMap.addMarker(new MarkerOptions().position(originLocation));
         //LatLngBounds bounds = new LatLngBounds.Builder().include(originLocation).build();
@@ -65,24 +58,28 @@ public class DisplayRouteActivity extends BaseActivity implements OnMapReadyCall
             setErrorState(getString(R.string.label_generalError));
         }*/
 
-        googleMap.addPolyline(new PolylineOptions().addAll(decodePoly(polyline)));
+        googleMap.addPolyline(new PolylineOptions().color(getResources().getColor(R.color.blue)).addAll(decodePolyline(polyline)));
     }
 
-    private List<LatLng> decodePoly(String encoded) {
+    private List<LatLng> decodePolyline(String encoded) {
 
-        List<LatLng> poly = new ArrayList<LatLng>();
-        int index = 0, len = encoded.length();
-        int lat = 0, lng = 0;
+        List<LatLng> poly = new ArrayList<>();
+        int index = 0;
+        int len = encoded.length();
+        int lat = 0;
+        int lng = 0;
 
         while (index < len) {
-            int b, shift = 0, result = 0;
+            int b;
+            int shift = 0;
+            int result = 0;
             do {
                 b = encoded.charAt(index++) - 63;
                 result |= (b & 0x1f) << shift;
                 shift += 5;
             } while (b >= 0x20);
-            int dlat = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-            lat += dlat;
+            int decodedLatitude = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+            lat += decodedLatitude;
 
             shift = 0;
             result = 0;
@@ -91,8 +88,8 @@ public class DisplayRouteActivity extends BaseActivity implements OnMapReadyCall
                 result |= (b & 0x1f) << shift;
                 shift += 5;
             } while (b >= 0x20);
-            int dlng = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-            lng += dlng;
+            int decodedLongitude = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
+            lng += decodedLongitude;
 
             LatLng p = new LatLng((((double) lat / 1E5)),
                     (((double) lng / 1E5)));
