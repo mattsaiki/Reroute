@@ -1,9 +1,11 @@
-package com.example.reroute;
+package com.example.reroute.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.example.reroute.R;
+import com.example.reroute.utils.Util;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -12,12 +14,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.libraries.places.api.model.Place;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class DisplayRouteActivity extends BaseActivity implements OnMapReadyCallback {
 
-    private final static String TAG = "[PLACE]";
+    private final static String TAG = "[ROUTE]";
     private final static String EXTRA_ORIGIN = "EXTRA_ORIGIN";
     private final static String EXTRA_POLYLINE = "EXTRA_POLYLINE";
 
@@ -46,7 +45,7 @@ public class DisplayRouteActivity extends BaseActivity implements OnMapReadyCall
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        LatLng originLocation = new LatLng(21.424723,-157.7467421);
+        LatLng originLocation = new LatLng(21.424723, -157.7467421);
         googleMap.addMarker(new MarkerOptions().position(originLocation));
         //LatLngBounds bounds = new LatLngBounds.Builder().include(originLocation).build();
         //googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 10));
@@ -58,44 +57,6 @@ public class DisplayRouteActivity extends BaseActivity implements OnMapReadyCall
             setErrorState(getString(R.string.label_generalError));
         }*/
 
-        googleMap.addPolyline(new PolylineOptions().color(getResources().getColor(R.color.blue)).addAll(decodePolyline(polyline)));
-    }
-
-    private List<LatLng> decodePolyline(String encoded) {
-
-        List<LatLng> poly = new ArrayList<>();
-        int index = 0;
-        int len = encoded.length();
-        int lat = 0;
-        int lng = 0;
-
-        while (index < len) {
-            int b;
-            int shift = 0;
-            int result = 0;
-            do {
-                b = encoded.charAt(index++) - 63;
-                result |= (b & 0x1f) << shift;
-                shift += 5;
-            } while (b >= 0x20);
-            int decodedLatitude = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-            lat += decodedLatitude;
-
-            shift = 0;
-            result = 0;
-            do {
-                b = encoded.charAt(index++) - 63;
-                result |= (b & 0x1f) << shift;
-                shift += 5;
-            } while (b >= 0x20);
-            int decodedLongitude = ((result & 1) != 0 ? ~(result >> 1) : (result >> 1));
-            lng += decodedLongitude;
-
-            LatLng p = new LatLng((((double) lat / 1E5)),
-                    (((double) lng / 1E5)));
-            poly.add(p);
-        }
-
-        return poly;
+        googleMap.addPolyline(new PolylineOptions().color(getResources().getColor(R.color.blue)).addAll(Util.decodePolyline(polyline)));
     }
 }

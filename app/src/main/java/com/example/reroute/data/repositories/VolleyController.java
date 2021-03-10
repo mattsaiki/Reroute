@@ -1,4 +1,4 @@
-package com.example.reroute.repositories;
+package com.example.reroute.data.repositories;
 
 import android.content.Context;
 
@@ -11,6 +11,9 @@ import com.android.volley.toolbox.Volley;
  * with the Application context to ensure that the RequestQueue will last the entire lifetime of the app
  */
 public class VolleyController {
+
+    private final static String TAG = "[ROUTE]";
+
     private static VolleyController instance;
     private RequestQueue requestQueue;
 

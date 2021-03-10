@@ -1,4 +1,4 @@
-package com.example.reroute;
+package com.example.reroute.ui;
 
 import androidx.annotation.NonNull;
 
@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.example.reroute.R;
 import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -27,7 +28,7 @@ import java.util.List;
  */
 public class MainActivity extends BaseActivity {
 
-    private final static String TAG = "[PLACE]";
+    private final static String TAG = "[ROUTE]";
     private final static String EXTRA_ORIGIN = "EXTRA_ORIGIN";
     private final static String EXTRA_DISTANCE = "EXTRA_DISTANCE";
     private final static int MIN_DISTANCE = 0;
@@ -128,6 +129,7 @@ public class MainActivity extends BaseActivity {
 
     /**
      * Checks if the user entered a valid distance
+     *
      * @param distanceEntered a string that the user entered in the distance field
      * @return True if valid distance, false otherwise
      */

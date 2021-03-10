@@ -1,4 +1,4 @@
-package com.example.reroute;
+package com.example.reroute.ui;
 
 import android.os.Bundle;
 import android.view.View;
@@ -8,6 +8,7 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.reroute.R;
+
 
 public abstract class BaseActivity extends AppCompatActivity {
 
@@ -21,6 +22,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     /**
      * Sets the error icon and message according to the error state
+     *
      * @param errorMessage Current error message
      */
     protected void setErrorState(String errorMessage) {

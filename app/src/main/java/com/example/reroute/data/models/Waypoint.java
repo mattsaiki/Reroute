@@ -1,4 +1,4 @@
-package com.example.reroute.models;
+package com.example.reroute.data.models;
 
 /**
  * This class represents waypoints in a route. It holds the Place ID and address of the waypoint
