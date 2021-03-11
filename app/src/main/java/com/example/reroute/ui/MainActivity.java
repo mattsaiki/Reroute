@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.example.reroute.BuildConfig;
 import com.example.reroute.R;
 import com.google.android.gms.common.api.Status;
 import com.google.android.libraries.places.api.Places;
@@ -62,10 +63,9 @@ public class MainActivity extends BaseActivity {
      * Initialize Autocomplete for searching for the starting location
      */
     private void initializePlaces() {
-        String placesApiKey = getString(R.string.google_maps_api_key);
         //Initialize Places
         if (!Places.isInitialized()) {
-            Places.initialize(getApplicationContext(), placesApiKey);
+            Places.initialize(getApplicationContext(), BuildConfig.GOOGLE_MAPS_API_KEY);
         }
 
         // Create a new Places client instance.

@@ -26,12 +26,18 @@ public class WaypointRepository {
     private ArrayList<Waypoint> waypointsWithoutDistance = new ArrayList<>();
     private ArrayList<Waypoint> waypointsWithDistance = new ArrayList<>();
 
+    WaypointRepositoryCallback responseCallback;
+
     public static WaypointRepository getInstance(Context context) {
         if (instance == null) {
             instance = new WaypointRepository();
             volleyController = VolleyController.getInstance(context);
         }
         return instance;
+    }
+
+    public void initCallback(WaypointRepositoryCallback callback) {
+        responseCallback = callback;
     }
 
     public MutableLiveData<List<Waypoint>> getWaypoints(Place origin, int distance) {
@@ -46,9 +52,7 @@ public class WaypointRepository {
                     //Parse the response
                     waypointsWithoutDistance = Util.parseSearchResponse(response);
                     data.setValue(waypointsWithoutDistance);
-                }, error -> {
-            //TODO: Handle the error
-        });
+                }, error -> responseCallback.onError());
         volleyController.addToRequestQueue(placesSearchRequest);
 
         return data;
@@ -80,9 +84,7 @@ public class WaypointRepository {
                             }
                             data.setValue(waypointsWithDistance);
                         }
-                    }, error -> {
-                //TODO: Handle the error
-            });
+                    }, error -> responseCallback.onError());
             volleyController.addToRequestQueue(distanceRequest);
         }
 
@@ -96,11 +98,8 @@ public class WaypointRepository {
                 Request.Method.GET,
                 directionsRequestString,
                 null,
-                response -> {
-                    data.setValue(Util.parseDirectionsResponse(response));
-                }, error -> {
-            //TODO: Handle the error
-        });
+                response -> data.setValue(Util.parseDirectionsResponse(response)),
+                error -> responseCallback.onError());
         volleyController.addToRequestQueue(directionsRequest);
         return data;
     }

@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.example.reroute.data.models.Waypoint;
 import com.example.reroute.data.repositories.WaypointRepository;
+import com.example.reroute.data.repositories.WaypointRepositoryCallback;
 import com.google.android.libraries.places.api.model.Place;
 
 import java.util.List;
@@ -17,6 +18,10 @@ public class GenerateRouteViewModel extends ViewModel {
     private MutableLiveData<List<Waypoint>> mWaypoints;
     private MutableLiveData<List<Waypoint>> mWaypointsWithDistances;
     private MutableLiveData<String> mDirections;
+
+    public void init(Context context, WaypointRepositoryCallback callback) {
+        WaypointRepository.getInstance(context).initCallback(callback);
+    }
 
     public void requestNearbyPlaces(Context context, Place origin, int distance) {
         mWaypoints = WaypointRepository.getInstance(context).getWaypoints(origin, distance);

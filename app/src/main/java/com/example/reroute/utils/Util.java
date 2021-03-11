@@ -42,7 +42,6 @@ public class Util {
         } else if (place.getLatLng() == null) {
             Log.i(TAG, "Lat Long is null");
         }
-        Log.i(TAG, "HTTP Request: " + builder.toString());
 
         return builder.toString();*/
 

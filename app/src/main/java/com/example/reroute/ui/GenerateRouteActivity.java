@@ -11,6 +11,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.example.reroute.R;
 import com.example.reroute.data.models.Waypoint;
+import com.example.reroute.data.repositories.WaypointRepositoryCallback;
 import com.example.reroute.ui.viewmodels.GenerateRouteViewModel;
 import com.google.android.libraries.places.api.model.Place;
 
@@ -18,7 +19,7 @@ import com.google.android.libraries.places.api.model.Place;
  * This activity builds the random route. It displays a progress bar and waits until the route has
  * been created.
  */
-public class GenerateRouteActivity extends BaseActivity {
+public class GenerateRouteActivity extends BaseActivity implements WaypointRepositoryCallback {
 
     private final static String TAG = "[ROUTE]";
     private final static String EXTRA_ORIGIN = "EXTRA_ORIGIN";
@@ -45,6 +46,7 @@ public class GenerateRouteActivity extends BaseActivity {
             Log.i(TAG, "Received extras: Distance = " + distance +
                     " Place = " + origin.toString());
             mGenerateRouteViewModel = ViewModelProviders.of(this).get(GenerateRouteViewModel.class);
+            mGenerateRouteViewModel.init(this.getApplicationContext(), this);
             //Get a list of nearby places
             mGenerateRouteViewModel.requestNearbyPlaces(this.getApplicationContext(), origin, distance);
             mGenerateRouteViewModel.getWaypointList().observe(this, waypointList -> {
@@ -82,8 +84,8 @@ public class GenerateRouteActivity extends BaseActivity {
         return R.layout.activity_generate;
     }
 
+    @Override
     public void onError() {
-        //TODO: Change this
         progressBar.setVisibility(View.GONE);
         progressMessage.setVisibility(View.GONE);
         setErrorState(getString(R.string.label_generalError));

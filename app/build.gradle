@@ -18,6 +18,7 @@ android {
         apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
 
         buildConfigField("String", "GOOGLE_MAPS_API_KEY", apikeyProperties['GOOGLE_MAPS_API_KEY'])
+        manifestPlaceholders = [googleMapsKey:apikeyProperties['GOOGLE_MAPS_API_KEY']]
     }
 
     buildTypes {
