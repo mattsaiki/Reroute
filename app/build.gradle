@@ -12,6 +12,12 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        def apikeyPropertiesFile = rootProject.file("apikey.properties")
+        def apikeyProperties = new Properties()
+        apikeyProperties.load(new FileInputStream(apikeyPropertiesFile))
+
+        buildConfigField("String", "GOOGLE_MAPS_API_KEY", apikeyProperties['GOOGLE_MAPS_API_KEY'])
     }
 
     buildTypes {

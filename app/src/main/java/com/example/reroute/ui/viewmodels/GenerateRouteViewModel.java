@@ -19,15 +19,15 @@ public class GenerateRouteViewModel extends ViewModel {
     private MutableLiveData<String> mDirections;
 
     public void requestNearbyPlaces(Context context, Place origin, int distance) {
-        mWaypoints = WaypointRepository.getInstance().getWaypoints(context, origin, distance);
+        mWaypoints = WaypointRepository.getInstance(context).getWaypoints(origin, distance);
     }
 
     public void requestDistances(Context context, Place origin) {
-        mWaypointsWithDistances = WaypointRepository.getInstance().getWaypointDistances(context, origin);
+        mWaypointsWithDistances = WaypointRepository.getInstance(context).getWaypointDistances(origin);
     }
 
     public void requestDiretions(Context context, Place origin, Waypoint waypoint) {
-        mDirections = WaypointRepository.getInstance().getWaypointDirections(context, origin, waypoint);
+        mDirections = WaypointRepository.getInstance(context).getWaypointDirections(origin, waypoint);
     }
 
     public Waypoint getWaypoint() {

@@ -21,21 +21,20 @@ public class WaypointRepository {
 
     //Singleton class
     private static WaypointRepository instance;
+    private static VolleyController volleyController;
 
     private ArrayList<Waypoint> waypointsWithoutDistance = new ArrayList<>();
     private ArrayList<Waypoint> waypointsWithDistance = new ArrayList<>();
-    private String directions;
-    private VolleyController volleyController;
 
-    public static WaypointRepository getInstance() {
+    public static WaypointRepository getInstance(Context context) {
         if (instance == null) {
             instance = new WaypointRepository();
+            volleyController = VolleyController.getInstance(context);
         }
         return instance;
     }
 
-    public MutableLiveData<List<Waypoint>> getWaypoints(Context context, Place origin, int distance) {
-        volleyController = VolleyController.getInstance(context);
+    public MutableLiveData<List<Waypoint>> getWaypoints(Place origin, int distance) {
         MutableLiveData<List<Waypoint>> data = new MutableLiveData<>();
 
         String placesRequestString = Util.buildPlacesSearchRequest(origin, distance);
@@ -50,12 +49,12 @@ public class WaypointRepository {
                 }, error -> {
             //TODO: Handle the error
         });
-        volleyController.addToRequestQueue(context, placesSearchRequest);
+        volleyController.addToRequestQueue(placesSearchRequest);
 
         return data;
     }
 
-    public MutableLiveData<List<Waypoint>> getWaypointDistances(Context context, Place origin) {
+    public MutableLiveData<List<Waypoint>> getWaypointDistances(Place origin) {
         MutableLiveData<List<Waypoint>> data = new MutableLiveData<>();
 
         ArrayList<Double> distances = new ArrayList<>();
@@ -63,7 +62,7 @@ public class WaypointRepository {
         for (int i = 0; i < waypointsWithoutDistance.size(); i++) {
             //for (int i = 0; i < 1; i++) {
             int index = i;
-            String distanceRequestString = Util.buildDistanceMatrixRequest(context, origin, waypointsWithoutDistance.get(i));
+            String distanceRequestString = Util.buildDistanceMatrixRequest(origin, waypointsWithoutDistance.get(i));
             JsonObjectRequest distanceRequest = new JsonObjectRequest(
                     Request.Method.GET,
                     distanceRequestString,
@@ -84,15 +83,15 @@ public class WaypointRepository {
                     }, error -> {
                 //TODO: Handle the error
             });
-            volleyController.addToRequestQueue(context, distanceRequest);
+            volleyController.addToRequestQueue(distanceRequest);
         }
 
         return data;
     }
 
-    public MutableLiveData<String> getWaypointDirections(Context context, Place origin, Waypoint waypoint) {
+    public MutableLiveData<String> getWaypointDirections(Place origin, Waypoint waypoint) {
         MutableLiveData<String> data = new MutableLiveData<>();
-        String directionsRequestString = Util.buildDirectionsRequest(context, origin, waypoint);
+        String directionsRequestString = Util.buildDirectionsRequest(origin, waypoint);
         JsonObjectRequest directionsRequest = new JsonObjectRequest(
                 Request.Method.GET,
                 directionsRequestString,
@@ -102,7 +101,7 @@ public class WaypointRepository {
                 }, error -> {
             //TODO: Handle the error
         });
-        volleyController.addToRequestQueue(context, directionsRequest);
+        volleyController.addToRequestQueue(directionsRequest);
         return data;
     }
 }

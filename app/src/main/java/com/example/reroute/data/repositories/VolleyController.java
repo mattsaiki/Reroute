@@ -18,7 +18,7 @@ public class VolleyController {
     private RequestQueue requestQueue;
 
     private VolleyController(Context context) {
-        requestQueue = getRequestQueue(context);
+        requestQueue = Volley.newRequestQueue(context);
     }
 
     /**
@@ -31,14 +31,11 @@ public class VolleyController {
         return instance;
     }
 
-    private RequestQueue getRequestQueue(Context context) {
-        if (requestQueue == null) {
-            requestQueue = Volley.newRequestQueue(context);
-        }
+    private RequestQueue getRequestQueue() {
         return requestQueue;
     }
 
-    public void addToRequestQueue(Context context, JsonObjectRequest req) {
-        getRequestQueue(context).add(req);
+    public void addToRequestQueue(JsonObjectRequest req) {
+        getRequestQueue().add(req);
     }
 }

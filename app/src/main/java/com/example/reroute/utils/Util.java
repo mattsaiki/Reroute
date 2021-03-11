@@ -1,9 +1,8 @@
 package com.example.reroute.utils;
 
-import android.content.Context;
 import android.util.Log;
 
-import com.example.reroute.R;
+import com.example.reroute.BuildConfig;
 import com.example.reroute.data.models.Waypoint;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.model.Place;
@@ -37,8 +36,7 @@ public class Util {
             builder.append("&radius=");
             builder.append(calculateRadius(distance));
             builder.append("&key=");
-            //TODO: Hide this API key
-            builder.append("AIzaSyD3HGrj_jZmd_OYlOaqfNiG0JyC61Gs9Fs");
+            builder.append(BuildConfig.GOOGLE_MAPS_API_KEY);
         } else if (place.getName() == null) {
             Log.i(TAG, "Name is null");
         } else if (place.getLatLng() == null) {
@@ -48,7 +46,7 @@ public class Util {
 
         return builder.toString();*/
 
-        return "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=21.424723,-157.7467421&radius=50000&key=AIzaSyD3HGrj_jZmd_OYlOaqfNiG0JyC61Gs9Fs";
+        return "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=21.424723,-157.7467421&radius=50000&key=" + BuildConfig.GOOGLE_MAPS_API_KEY;
     }
 
     /**
@@ -58,7 +56,7 @@ public class Util {
      * @param distance Distance that the user selected
      * @return Search radius in meters
      */
-    private int calculateRadius(int distance) {
+    private static int calculateRadius(int distance) {
         //Since the max radius is 31 miles, cap the distance at 60 miles
         int cappedDistance = distance % 60;
         return (cappedDistance/2) * 1600;
@@ -66,12 +64,11 @@ public class Util {
 
     /**
      * Builds the Distance Matrix API request
-     * @param context Application context
      * @param origin Route starting point
      * @param destination Potential destination for the route
      * @return String representing the request in the form of an HTTP URL
      */
-    public static String buildDistanceMatrixRequest(Context context, Place origin, Waypoint destination) {
+    public static String buildDistanceMatrixRequest(Place origin, Waypoint destination) {
         StringBuilder builder = new StringBuilder();
 
 /*        if (origin.getId() != null) {
@@ -82,14 +79,13 @@ public class Util {
             builder.append("&mode=");
             builder.append("bicycling");
             builder.append("&key=");
-            //TODO: Hide this API key
-            builder.append("AIzaSyD3HGrj_jZmd_OYlOaqfNiG0JyC61Gs9Fs");
+            builder.append(BuildConfig.GOOGLE_MAPS_API_KEY);
         }
         return builder.toString();*/
-        return "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=place_id:ChIJU7o1XzgVAHwRkAyT6IkAvFk&destinations=place_id:ChIJTUbDjDsYAHwRbJen81_1KEs&mode=bicycling&key=AIzaSyD3HGrj_jZmd_OYlOaqfNiG0JyC61Gs9Fs";
+        return "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=place_id:ChIJU7o1XzgVAHwRkAyT6IkAvFk&destinations=place_id:ChIJTUbDjDsYAHwRbJen81_1KEs&mode=bicycling&key=" + BuildConfig.GOOGLE_MAPS_API_KEY;
     }
 
-    public static String buildDirectionsRequest(Context context, Place origin, Waypoint waypoint) {
+    public static String buildDirectionsRequest(Place origin, Waypoint waypoint) {
         StringBuilder builder = new StringBuilder();
 
         if (origin.getId() != null) {
@@ -102,7 +98,7 @@ public class Util {
             builder.append("&mode=");
             builder.append("bicycling");
             builder.append("&key=");
-            builder.append(context.getString(R.string.google_maps_api_key));
+            builder.append(BuildConfig.GOOGLE_MAPS_API_KEY);
         }
 
         return builder.toString();
