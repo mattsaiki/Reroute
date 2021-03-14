@@ -13,6 +13,7 @@ import com.example.reroute.R;
 import com.example.reroute.data.models.Waypoint;
 import com.example.reroute.data.repositories.WaypointRepositoryCallback;
 import com.example.reroute.ui.viewmodels.GenerateRouteViewModel;
+import com.example.reroute.utils.Util;
 import com.google.android.libraries.places.api.model.Place;
 
 /**
@@ -24,13 +25,13 @@ public class GenerateRouteActivity extends BaseActivity implements WaypointRepos
     private final static String TAG = "[ROUTE]";
     private final static String EXTRA_ORIGIN = "EXTRA_ORIGIN";
     private final static String EXTRA_DISTANCE = "EXTRA_DISTANCE";
+    private final static String EXTRA_TRAVEL_MODE = "EXTRA_TRAVEL_MODE";
     private final static String EXTRA_POLYLINE = "EXTRA_POLYLINE";
 
     private ProgressBar progressBar;
     private TextView progressMessage;
-    private Place origin;
 
-    private GenerateRouteViewModel mGenerateRouteViewModel;
+    private GenerateRouteViewModel generateRouteViewModel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -40,38 +41,13 @@ public class GenerateRouteActivity extends BaseActivity implements WaypointRepos
         progressMessage = findViewById(R.id.progressText);
 
         Intent intent = getIntent();
-        origin = intent.getParcelableExtra(EXTRA_ORIGIN);
+        Place origin = intent.getParcelableExtra(EXTRA_ORIGIN);
         int distance = intent.getIntExtra(EXTRA_DISTANCE, 0);
-        if (origin != null && distance != 0) {
+        String travelMode = intent.getStringExtra(EXTRA_TRAVEL_MODE);
+        if (origin != null && distance != 0 && travelMode != null) {
             Log.i(TAG, "Received extras: Distance = " + distance +
                     " Place = " + origin.toString());
-            mGenerateRouteViewModel = ViewModelProviders.of(this).get(GenerateRouteViewModel.class);
-            mGenerateRouteViewModel.init(this.getApplicationContext(), this);
-            //Get a list of nearby places
-            mGenerateRouteViewModel.requestNearbyPlaces(this.getApplicationContext(), origin, distance);
-            mGenerateRouteViewModel.getWaypointList().observe(this, waypointList -> {
-                Log.i(TAG, "Waypoint list updated");
-
-                //When the nearby places are fetched, get the distances to each of the places
-                mGenerateRouteViewModel.requestDistances(this.getApplicationContext(), origin);
-                mGenerateRouteViewModel.getWaypointsWithDistance().observe(this, listWithDistances -> {
-                    Log.i(TAG, "Waypoint list with distances updated");
-
-                    //When the distances to the nearby places are fetched, choose one of the waypoints
-                    Waypoint chosenWaypoint = mGenerateRouteViewModel.getWaypoint();
-                    Log.i(TAG, "Final Waypoint: " + chosenWaypoint.getId() + " " + chosenWaypoint.getAddress());
-
-                    //When the final waypoint is chosen, get the directions
-                    mGenerateRouteViewModel.requestDiretions(this.getApplicationContext(), origin, chosenWaypoint);
-                    mGenerateRouteViewModel.getDiretions().observe(this, directions -> {
-                        Log.i(TAG, "Directions are updated");
-                        Intent displayRouteIntent = new Intent(this, DisplayRouteActivity.class);
-                        displayRouteIntent.putExtra(EXTRA_ORIGIN, origin);
-                        displayRouteIntent.putExtra(EXTRA_POLYLINE, directions);
-                        startActivity(displayRouteIntent);
-                    });
-                } );
-            });
+            generateRandomRoute(origin, distance, travelMode);
         } else {
             progressBar.setVisibility(View.GONE);
             progressMessage.setVisibility(View.GONE);
@@ -90,5 +66,34 @@ public class GenerateRouteActivity extends BaseActivity implements WaypointRepos
         progressMessage.setVisibility(View.GONE);
         setErrorState(getString(R.string.label_generalError));
         Log.e(TAG, "Something went wrong while generating a route");
+    }
+
+    private void generateRandomRoute(Place origin, int distance, String travelMode) {
+        generateRouteViewModel = ViewModelProviders.of(this).get(GenerateRouteViewModel.class);
+        generateRouteViewModel.init(this.getApplicationContext(), this);
+        //Request a list of nearby places
+        generateRouteViewModel.requestNearbyPlaces(this.getApplicationContext(), origin, distance);
+        generateRouteViewModel.getWaypointList().observe(this, waypointList -> {
+            //When the nearby places are fetched, get the distances to each of the places.
+            generateRouteViewModel.requestDistances(this.getApplicationContext(), origin, travelMode);
+            generateRouteViewModel.getWaypointsWithDistance().observe(this, listWithDistances -> {
+                //When the all of the distances to the nearby places are fetched, choose one of the waypoints
+                if (listWithDistances.size() == waypointList.size()) {
+                    Waypoint chosenWaypoint = generateRouteViewModel.getWaypoint();
+                    Log.i(TAG, "Final Waypoint: " + chosenWaypoint.getId() + " " + chosenWaypoint.getAddress());
+
+                    //When the final waypoint is chosen, get the directions from origin -> waypoint -> origin
+                    generateRouteViewModel.requestDirections(this.getApplicationContext(), origin, chosenWaypoint, travelMode);
+                    generateRouteViewModel.getDirections().observe(this, directions -> {
+                        //Move to the next activity after the directions have been fetched
+                        Log.i(TAG, "Directions are updated");
+                        Intent displayRouteIntent = new Intent(this, DisplayRouteActivity.class);
+                        displayRouteIntent.putExtra(EXTRA_ORIGIN, origin);
+                        displayRouteIntent.putExtra(EXTRA_POLYLINE, directions);
+                        startActivity(displayRouteIntent);
+                    });
+                }
+            } );
+        });
     }
 }

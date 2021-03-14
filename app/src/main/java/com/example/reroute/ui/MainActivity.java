@@ -5,57 +5,58 @@ import androidx.annotation.NonNull;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 
 import com.example.reroute.BuildConfig;
 import com.example.reroute.R;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * This activity is collects the information necessary to generate a random route.
- * After all of the information is collected, start the next activity
+ * This activity collects the starting location and displays it on a map
  */
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements OnMapReadyCallback{
 
     private final static String TAG = "[ROUTE]";
     private final static String EXTRA_ORIGIN = "EXTRA_ORIGIN";
-    private final static String EXTRA_DISTANCE = "EXTRA_DISTANCE";
-    private final static int MIN_DISTANCE = 0;
-    private final static int MAX_DISTANCE = 200;
+    private final static int ZOOM_LEVEL_STREETS = 15;
 
-    private EditText distanceEditText;
-    private Button goButton;
-    private int routeDistance;
+    private FloatingActionButton nextButton;
     private Place originSelected;
+    private GoogleMap map;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        distanceEditText = findViewById(R.id.routeLength_editText);
-        goButton = findViewById(R.id.go_button);
+        nextButton = findViewById(R.id.fab);
 
         initializePlaces();
-        initializeDistanceEditText();
-        initializeGoButton();
-        goButton.setVisibility(View.VISIBLE);
+
+        //Implement the OnMapReadyCallback interface to setup the map when it's available
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
     }
 
     @Override
     protected int getLayoutResourceId() {
-        return R.layout.activity_collect;
+        return R.layout.activity_main;
     }
 
     /**
@@ -76,10 +77,10 @@ public class MainActivity extends BaseActivity {
                 getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
         if (autocompleteFragment != null) {
             autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
+            autocompleteFragment.setHint(getString(R.string.hint_routeOrigin));
             autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
                 @Override
                 public void onPlaceSelected(@NonNull Place place) {
-                    distanceEditText.setVisibility(View.VISIBLE);
                     Log.i(TAG, "Place selected: " + place.getName());
 
                     //Use the Places client to get the latitude and longitude of the selected place
@@ -88,6 +89,14 @@ public class MainActivity extends BaseActivity {
                     placesClient.fetchPlace(request).addOnSuccessListener(response -> {
                         originSelected = response.getPlace();
                         Log.i(TAG, "Full place details fetched: " + originSelected.toString());
+                        if (originSelected.getLatLng() != null) {
+                            LatLng originLocation = new LatLng(originSelected.getLatLng().latitude, originSelected.getLatLng().longitude);
+                            map.addMarker(new MarkerOptions().position(originLocation));
+                            map.animateCamera(CameraUpdateFactory.newLatLngZoom(originLocation, ZOOM_LEVEL_STREETS));
+                            nextButton.setVisibility(View.VISIBLE);
+                        } else {
+                            setErrorState(getString(R.string.label_generalError));
+                        }
                     }).addOnFailureListener(exception -> {
                         setErrorState(getString(R.string.label_generalError));
                         Log.e(TAG, "Place not found: " + exception.getMessage());
@@ -96,8 +105,10 @@ public class MainActivity extends BaseActivity {
 
                 @Override
                 public void onError(Status status) {
-                    setErrorState(getString(R.string.label_generalError));
-                    Log.i(TAG, "An error occurred selecting a Place: " + status);
+                    if (!status.isCanceled()) {
+                        Log.i(TAG, "An error occurred selecting a Place: " + status);
+                        setErrorState(getString(R.string.label_generalError));
+                    }
                 }
             });
         } else {
@@ -106,56 +117,16 @@ public class MainActivity extends BaseActivity {
     }
 
     /**
-     * Initialize the edit text for entering route distance
+     * Go to the next activity when the Next button is clicked
      */
-    private void initializeDistanceEditText() {
-        distanceEditText.setOnKeyListener((v, keyCode, event) -> {
-            boolean donePressed = false;
-            if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-                Log.i(TAG, "Distance entered, checking for valid distance");
-                donePressed = true;
-                boolean validDistance = verifyDistanceEntered(distanceEditText.getText().toString());
-                if (validDistance) {
-                    //Show the Generate Route button when a valid distance is entered
-                    goButton.setVisibility(View.VISIBLE);
-                    hideErrorState();
-                } else {
-                    setErrorState(getString(R.string.label_distanceError));
-                }
-            }
-            return donePressed;
-        });
+    public void onNextClicked(View view) {
+        Intent intent = new Intent(this, CollectRouteInfoActivity.class);
+        intent.putExtra(EXTRA_ORIGIN, originSelected);
+        startActivity(intent);
     }
 
-    /**
-     * Checks if the user entered a valid distance
-     *
-     * @param distanceEntered a string that the user entered in the distance field
-     * @return True if valid distance, false otherwise
-     */
-    private boolean verifyDistanceEntered(String distanceEntered) {
-        boolean validInput = false;
-        int distance = Integer.parseInt(distanceEntered);
-        //Verify that the distance is a realistic distance
-        if (MIN_DISTANCE < distance && MAX_DISTANCE > distance) {
-            validInput = true;
-            routeDistance = distance;
-            Log.i(TAG, "Valid distance was entered: " + distanceEntered);
-        } else {
-            Log.i(TAG, "Invalid distance was entered: " + distanceEntered);
-        }
-        return validInput;
-    }
-
-    /**
-     * Initialize the button to generate the route
-     */
-    private void initializeGoButton() {
-        goButton.setOnClickListener(v -> {
-            Intent intent = new Intent(this, GenerateRouteActivity.class);
-            intent.putExtra(EXTRA_ORIGIN, originSelected);
-            intent.putExtra(EXTRA_DISTANCE, routeDistance);
-            startActivity(intent);
-        });
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        map = googleMap;
     }
 }

@@ -6,5 +6,13 @@
     <string name="label_distanceError">Invalid distance entered. Please try again.</string>
     <string name="label_generalError">Something went wrong. Please try again.</string>
     <string name="label_generatingRoute">Generating a route</string>
-
+    <string name="hint_routeOrigin">Search for starting location</string>
+    <string name="description_error">Error</string>
+    <string name="description_next">Next</string>
+    <string name="label_cycling">Cycling</string>
+    <string name="label_running">Running</string>
+    <string name="label_routeLength">Route Length: %1$d</string>
+    <string name="description_slider">Distance</string>
+    <string name="string_cyclingTravelMode">bicycling</string>
+    <string name="string_walkingTravelMode">walking</string>
 </resources>

@@ -14,6 +14,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class contains util methods
+ */
 public class Util {
 
     private final static String TAG = "[ROUTE]";
@@ -27,7 +30,7 @@ public class Util {
     public static String buildPlacesSearchRequest(Place place, int distance) {
         StringBuilder builder = new StringBuilder();
 
-/*        if (place.getName() != null && place.getLatLng() != null) {
+        if (place.getName() != null && place.getLatLng() != null) {
             builder.append("https://maps.googleapis.com/maps/api/place/nearbysearch/json?");
             builder.append("&location=");
             builder.append(place.getLatLng().latitude);
@@ -43,9 +46,7 @@ public class Util {
             Log.i(TAG, "Lat Long is null");
         }
 
-        return builder.toString();*/
-
-        return "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=21.424723,-157.7467421&radius=50000&key=" + BuildConfig.GOOGLE_MAPS_API_KEY;
+        return builder.toString();
     }
 
     /**
@@ -65,26 +66,33 @@ public class Util {
      * Builds the Distance Matrix API request
      * @param origin Route starting point
      * @param destination Potential destination for the route
+     * @param travelMode Travel mode for the route
      * @return String representing the request in the form of an HTTP URL
      */
-    public static String buildDistanceMatrixRequest(Place origin, Waypoint destination) {
+    public static String buildDistanceMatrixRequest(Place origin, Waypoint destination, String travelMode) {
         StringBuilder builder = new StringBuilder();
 
-/*        if (origin.getId() != null) {
+        if (origin.getId() != null) {
             builder.append("https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=place_id:");
             builder.append(origin.getId());
             builder.append("&destinations=place_id:");
             builder.append(destination.getId());
             builder.append("&mode=");
-            builder.append("bicycling");
+            builder.append(travelMode);
             builder.append("&key=");
             builder.append(BuildConfig.GOOGLE_MAPS_API_KEY);
         }
-        return builder.toString();*/
-        return "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=place_id:ChIJU7o1XzgVAHwRkAyT6IkAvFk&destinations=place_id:ChIJTUbDjDsYAHwRbJen81_1KEs&mode=bicycling&key=" + BuildConfig.GOOGLE_MAPS_API_KEY;
+        return builder.toString();
     }
 
-    public static String buildDirectionsRequest(Place origin, Waypoint waypoint) {
+    /**
+     * Builds the Directions API request
+     * @param origin Route starting/ending point
+     * @param waypoint Waypoint for the route
+     * @param travelMode Travel mode for the route
+     * @return String representing the request in the form of an HTTP url
+     */
+    public static String buildDirectionsRequest(Place origin, Waypoint waypoint, String travelMode) {
         StringBuilder builder = new StringBuilder();
 
         if (origin.getId() != null) {
@@ -95,7 +103,7 @@ public class Util {
             builder.append("&waypoints=place_id:");
             builder.append(waypoint.getId());
             builder.append("&mode=");
-            builder.append("bicycling");
+            builder.append(travelMode);
             builder.append("&key=");
             builder.append(BuildConfig.GOOGLE_MAPS_API_KEY);
         }
@@ -170,6 +178,11 @@ public class Util {
         return builder.toString();
     }
 
+    /**
+     * Decodes the encoded polyline into a list of places along the route
+     * @param encoded Polyline to be decoded
+     * @return List of LatLng objects that represent the route
+     */
     public static List<LatLng> decodePolyline(String encoded) {
 
         List<LatLng> poly = new ArrayList<>();

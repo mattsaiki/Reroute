@@ -10,6 +10,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.reroute.R;
 
 
+/**
+ * Base activity class used for universal functionality among all activities
+ */
 public abstract class BaseActivity extends AppCompatActivity {
 
     @Override
