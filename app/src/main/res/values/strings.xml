@@ -1,18 +1,18 @@
 <resources>
     <string name="app_name">Reroute</string>
-    <string name="label_startingLocation">Choose a starting location</string>
-    <string name="hint_routeLength">Enter the length of the route (miles)</string>
-    <string name="button_generateRoute">Generate Route</string>
     <string name="label_distanceError">Invalid distance entered. Please try again.</string>
     <string name="label_generalError">Something went wrong. Please try again.</string>
     <string name="label_generatingRoute">Generating a route</string>
-    <string name="hint_routeOrigin">Search for starting location</string>
+    <string name="hint_routeOrigin">Search for a starting location</string>
     <string name="description_error">Error</string>
     <string name="description_next">Next</string>
     <string name="label_cycling">Cycling</string>
     <string name="label_running">Running</string>
     <string name="label_routeLength">Route Length: %1$d</string>
+    <string name="label_routeLengthDouble">Route Length: %1$.2f</string>
     <string name="description_slider">Distance</string>
     <string name="string_cyclingTravelMode">bicycling</string>
     <string name="string_walkingTravelMode">walking</string>
+    <string name="description_save">Save</string>
+    <string name="title_collectRoute">Route Info</string>
 </resources>

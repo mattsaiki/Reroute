@@ -28,7 +28,7 @@ public class GenerateRouteViewModel extends ViewModel {
      * @param callback Error callback
      */
     public void init(Context context, WaypointRepositoryCallback callback) {
-        WaypointRepository.getInstance(context).initCallback(callback);
+        WaypointRepository.getInstance(context).init(callback);
     }
 
     /**

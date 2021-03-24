@@ -13,7 +13,6 @@ import com.example.reroute.R;
 import com.example.reroute.data.models.Waypoint;
 import com.example.reroute.data.repositories.WaypointRepositoryCallback;
 import com.example.reroute.ui.viewmodels.GenerateRouteViewModel;
-import com.example.reroute.utils.Util;
 import com.google.android.libraries.places.api.model.Place;
 
 /**
@@ -42,12 +41,12 @@ public class GenerateRouteActivity extends BaseActivity implements WaypointRepos
 
         Intent intent = getIntent();
         Place origin = intent.getParcelableExtra(EXTRA_ORIGIN);
-        int distance = intent.getIntExtra(EXTRA_DISTANCE, 0);
+        int desiredDistance = intent.getIntExtra(EXTRA_DISTANCE, 0);
         String travelMode = intent.getStringExtra(EXTRA_TRAVEL_MODE);
-        if (origin != null && distance != 0 && travelMode != null) {
-            Log.i(TAG, "Received extras: Distance = " + distance +
+        if (origin != null && desiredDistance != 0 && travelMode != null) {
+            Log.i(TAG, "Received extras: Distance = " + desiredDistance +
                     " Place = " + origin.toString());
-            generateRandomRoute(origin, distance, travelMode);
+            generateRandomRoute(origin, desiredDistance, travelMode);
         } else {
             progressBar.setVisibility(View.GONE);
             progressMessage.setVisibility(View.GONE);
@@ -74,9 +73,11 @@ public class GenerateRouteActivity extends BaseActivity implements WaypointRepos
         //Request a list of nearby places
         generateRouteViewModel.requestNearbyPlaces(this.getApplicationContext(), origin, distance);
         generateRouteViewModel.getWaypointList().observe(this, waypointList -> {
+
             //When the nearby places are fetched, get the distances to each of the places.
             generateRouteViewModel.requestDistances(this.getApplicationContext(), origin, travelMode);
             generateRouteViewModel.getWaypointsWithDistance().observe(this, listWithDistances -> {
+                Log.i(TAG, "Got a distance");
                 //When the all of the distances to the nearby places are fetched, choose one of the waypoints
                 if (listWithDistances.size() == waypointList.size()) {
                     Waypoint chosenWaypoint = generateRouteViewModel.getWaypoint();
@@ -90,10 +91,22 @@ public class GenerateRouteActivity extends BaseActivity implements WaypointRepos
                         Intent displayRouteIntent = new Intent(this, DisplayRouteActivity.class);
                         displayRouteIntent.putExtra(EXTRA_ORIGIN, origin);
                         displayRouteIntent.putExtra(EXTRA_POLYLINE, directions);
+                        displayRouteIntent.putExtra(EXTRA_DISTANCE, chosenWaypoint.getDistance());
                         startActivity(displayRouteIntent);
                     });
+                } else {
+                    Log.i(TAG, "withoutDistanceSize = " + waypointList.size() + " withDistanceSize = " +listWithDistances.size());
                 }
             } );
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(GenerateRouteActivity.this,
+                MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
+                | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
     }
 }

@@ -22,6 +22,7 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.Arrays;
@@ -78,6 +79,7 @@ public class MainActivity extends BaseActivity implements OnMapReadyCallback{
         if (autocompleteFragment != null) {
             autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME));
             autocompleteFragment.setHint(getString(R.string.hint_routeOrigin));
+            autocompleteFragment.setActivityMode(AutocompleteActivityMode.FULLSCREEN);
             autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
                 @Override
                 public void onPlaceSelected(@NonNull Place place) {

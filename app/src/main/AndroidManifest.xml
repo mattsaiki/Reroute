@@ -9,20 +9,31 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.MainActivity">
+        <activity
+            android:name=".ui.MainActivity"
+            android:theme="@style/Theme.MaterialComponents.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ui.GenerateRouteActivity" />
-        <activity android:name=".ui.DisplayRouteActivity" />
-        <activity android:name=".ui.CollectRouteInfoActivity" />
+        <activity
+            android:name=".ui.GenerateRouteActivity"
+            android:theme="@style/Theme.MaterialComponents.NoActionBar" />
+        <activity android:name=".ui.DisplayRouteActivity"
+            android:theme="@style/Theme.MaterialComponents.NoActionBar"/>
+        <activity
+            android:name=".ui.CollectRouteInfoActivity"
+            android:label="@string/title_collectRoute" />
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="${googleMapsKey}" />
+            android:value="@string/google_maps_key" />
     </application>
 
 </manifest>

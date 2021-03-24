@@ -120,6 +120,7 @@ public class Util {
     public static ArrayList<Waypoint> parseSearchResponse(JSONObject object) {
         ArrayList<Waypoint> waypointList = new ArrayList<>();
         try {
+            Log.d(TAG, object.toString());
             JSONArray array = object.getJSONArray("results");
             for (int i = 0; i < array.length(); i++) {
                 JSONObject obj = array.getJSONObject(i);

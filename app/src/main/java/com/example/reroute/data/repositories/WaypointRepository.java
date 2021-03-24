@@ -26,8 +26,8 @@ public class WaypointRepository {
     private static WaypointRepository instance;
     private static VolleyController volleyController;
 
-    private ArrayList<Waypoint> waypointsWithoutDistance = new ArrayList<>();
-    private ArrayList<Waypoint> waypointsWithDistance = new ArrayList<>();
+    private ArrayList<Waypoint> waypointsWithoutDistance ;
+    private ArrayList<Waypoint> waypointsWithDistance;
 
     private WaypointRepositoryCallback responseCallback;
 
@@ -44,10 +44,13 @@ public class WaypointRepository {
 
     /**
      * Initializes the callback to be used in case of errors
+     * Resets the waypoint arraylists
      * @param callback Callback used for request errors
      */
-    public void initCallback(WaypointRepositoryCallback callback) {
+    public void init(WaypointRepositoryCallback callback) {
         responseCallback = callback;
+        waypointsWithoutDistance = new ArrayList<>();
+        waypointsWithDistance = new ArrayList<>();
     }
 
     /**
